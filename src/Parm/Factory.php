@@ -2,7 +2,7 @@
 
 namespace Parm;
 
-abstract class DataAccessObjectFactory extends DatabaseProcessor implements TableInterface
+abstract class Factory extends DatabaseProcessor implements TableInterface
 {
 	private $fields = array();
 	private $conditional;
@@ -31,11 +31,12 @@ abstract class DataAccessObjectFactory extends DatabaseProcessor implements Tabl
 
 		// conditional used in building the WHERE clause
 		$this->conditional = new Binding\Conditional\AndConditional();
+
 	}
 	
 	/**
 	 * Return an array of the objects based on Bindings
-	 * @return array DataAccessObjects
+	 * @return array of \Parm\Objects
 	 */
 	function getObjects()
 	{
@@ -97,7 +98,7 @@ abstract class DataAccessObjectFactory extends DatabaseProcessor implements Tabl
      * @return object|null The record from the database
 	 * @throws \Parm\Exception\RecordNotFoundException
      */
-	static function findIdOrFail($id)
+	function findIdOrFail($id)
 	{
 		$object = $this->findId($id);
 		
@@ -123,8 +124,9 @@ abstract class DataAccessObjectFactory extends DatabaseProcessor implements Tabl
 	
 	/**
 	 * Get objects with completely custom join, where, group, and order by clause
-	 * @param string $whereClause
-	 * @return array of DataAccessObjects
+	 * @param string $clause
+	 * @return array of \Parm\Object
+	 * @throws \Parm\Exception\ErrorException
      */
 	function find($clause = "")
 	{
@@ -140,9 +142,9 @@ abstract class DataAccessObjectFactory extends DatabaseProcessor implements Tabl
 
 	/**
 	 * Adds to the default factory Binding which is an AND conditional
-     * @param Binding|string $binding
-     * @return DataAccessObjectFactory so that you can chain bindings
-     */
+	 * @param Binding|string $binding
+	 * @return $this so that you can chain bindings and conditionals
+	 */
 	function addBinding($binding)
 	{
 		$this->conditional->addBinding($binding);
@@ -151,8 +153,8 @@ abstract class DataAccessObjectFactory extends DatabaseProcessor implements Tabl
 	
 	/**
 	 * Alias to addBinding. Adds a binding to the default factory Binding which is an AND conditional
-     * @param Binding|string $binding
-     * @return DataAccessObjectFactory so that you can chain bindings
+     * @param Binding\Binding|string $binding
+	 * @return $this
      */
 	function bind($binding)
 	{
@@ -162,8 +164,8 @@ abstract class DataAccessObjectFactory extends DatabaseProcessor implements Tabl
 	
 	/**
 	 * Adds a conditional to the default FactoryConditional which is an AND conditional
-	 * @param Parm\Binding\Conditional $conditional
-     * @return DataAccessObjectFactory so that you can chain bindings and conditionals
+	 * @param Binding\Conditional\Conditional $conditional
+	 * @return $this so that you can chain bindings and conditionals
      */
 	function addConditional(Binding\Conditional\Conditional $conditional)
 	{
@@ -173,12 +175,12 @@ abstract class DataAccessObjectFactory extends DatabaseProcessor implements Tabl
 	
 	/**
 	 * Adds to the default Factory Binding which is an AND conditional
-	 * @param DataAccessObject $object
+	 * @param \Parm\Object $object
 	 * @param string $localField
-	 * @param string $remoteField 
-     * @return DataAccessObjectFactory so that you can chain bindings
+	 * @param string $remoteField
+	 * @return $this so that you can chain bindings and conditionals
      */
-	function addForeignKeyObjectBinding(DataAccessObject $object, $localField = null, $remoteField = null)
+	function addForeignKeyObjectBinding(Object $object, $localField = null, $remoteField = null)
 	{
 		return $this->addBinding(new Binding\ForeignKeyObjectBinding($object, $localField = null, $remoteField = null));
 	}
@@ -186,8 +188,8 @@ abstract class DataAccessObjectFactory extends DatabaseProcessor implements Tabl
 	/**
 	 * Shorthand to add an Equals Binding to the Factory conditional
 	 * @param string $field
-	 * @param string $value 
-     * @return DataAccessObjectFactory so that you can chain bindings
+	 * @param string $value
+	 * @return $this so that you can chain bindings and conditionals
      */
 	function whereEquals($field,$value)
 	{
@@ -197,8 +199,8 @@ abstract class DataAccessObjectFactory extends DatabaseProcessor implements Tabl
 	/**
 	 * Shorthand to add a NotEqualsBinding to the Factory conditional
 	 * @param string $field
-	 * @param string $value 
-     * @return DataAccessObjectFactory so that you can chain bindings
+	 * @param string $value
+	 * @return $this so that you can chain bindings and conditionals
      */
 	function whereNotEquals($field,$value)
 	{
@@ -208,18 +210,29 @@ abstract class DataAccessObjectFactory extends DatabaseProcessor implements Tabl
 	/**
 	 * Shorthand to add a ContainsBinding to the Factory conditional
 	 * @param string $field
-	 * @param string $value 
-     * @return DataAccessObjectFactory so that you can chain bindings
+	 * @param string $value
+	 * @return $this so that you can chain bindings and conditionals
      */
 	function whereContains($field,$value)
 	{
 		return $this->addBinding(new Binding\ContainsBinding($field, $query));
 	}
+
+	/**
+	 * Shorthand to add a ContainsBinding to the Factory conditional
+	 * @param string $field
+	 * @param string $value
+	 * @return $this so that you can chain bindings and conditionals
+	 */
+	function whereContainsCaseSensitive($field,$value)
+	{
+		return $this->addBinding(new Binding\CaseSensitiveEqualsBinding($field, $query));
+	}
 	
 	/**
 	 * Shorthand to add an TrueBooleanBinding Binding to the Factory conditional
 	 * @param string $field
-     * @return DataAccessObjectFactory so that you can chain bindings
+	 * @return $this so that you can chain bindings and conditionals
      */
 	function whereTrue($field)
 	{
@@ -229,7 +242,7 @@ abstract class DataAccessObjectFactory extends DatabaseProcessor implements Tabl
 	/**
 	 * Shorthand to add an TrueBooleanBinding Binding to the Factory conditional
 	 * @param string $field
-     * @return DataAccessObjectFactory so that you can chain bindings
+	 * @return $this so that you can chain bindings and conditionals
      */
 	function whereFalse($field)
 	{
@@ -333,7 +346,7 @@ abstract class DataAccessObjectFactory extends DatabaseProcessor implements Tabl
 	 * Add a column to the select clause. Useful when using join.
 	 * Usage: $f->addSelectField("company.company_name");
 	 * @param string $field The name of the column
-	 * @return DataAccessObject for chaining
+	 * @return $this so that you can chain bindings and conditionals
      */
 	function addSelectField($field)
 	{
@@ -364,7 +377,7 @@ abstract class DataAccessObjectFactory extends DatabaseProcessor implements Tabl
 	/**
 	 * Add a join to the select clause
 	 * @param string $clause The join clause
-	 * @return DataAccessObject for chaining
+	 * @return \Parm\Object for chaining
      */
 	function join($clause)
 	{
@@ -376,7 +389,7 @@ abstract class DataAccessObjectFactory extends DatabaseProcessor implements Tabl
 	/**
 	 * Set and replace the entire join clause
 	 * @param string $val The join clause
-	 * @return DataAccessObject for chaining
+	 * @return $this so that you can chain bindings and conditionals
      */
 	function setJoinClause($val)
 	{
@@ -397,7 +410,7 @@ abstract class DataAccessObjectFactory extends DatabaseProcessor implements Tabl
 	/**
 	 * Alias to the join() function
 	 * @param string $clause join clause
-	 * @return DataAccessObject
+	 * @return  \Parm\Object
      */
 	function addJoinClause($clause)
 	{
@@ -408,7 +421,7 @@ abstract class DataAccessObjectFactory extends DatabaseProcessor implements Tabl
 	 * Add to the group by clause
 	 * Usage: $f->groupBy("last_name");
 	 * @param array|string $fieldOrArray An array of strings or all the fields separated by commas
-	 * @return DataAccessObject
+	 * @return $this so that you can chain bindings and conditionals
      */
 	function groupBy($fieldOrArray)
 	{
@@ -444,7 +457,7 @@ abstract class DataAccessObjectFactory extends DatabaseProcessor implements Tabl
 	/**
 	 * Set and replace the entire group yb clause
 	 * @param string $groupByClause The group by clause
-	 * @return DataAccessObject for chaining
+	 * @return $this so that you can chain bindings and conditionals
      */
 	function setGroupByClause($groupByClause)
 	{
@@ -467,7 +480,7 @@ abstract class DataAccessObjectFactory extends DatabaseProcessor implements Tabl
 	 * Usage: $f->orderBy("last_name","asc");
 	 * @param string $field The field to sort by
 	 * @param string $direction The direction to sort. asc or desc
-	 * @return DataAccessObject
+	 * @return $this so that you can chain bindings and conditionals
      */
 	function orderBy($field, $direction = 'asc')
 	{
@@ -488,7 +501,7 @@ abstract class DataAccessObjectFactory extends DatabaseProcessor implements Tabl
 	/**
 	 * Set and eplace the entire order by clause
 	 * @param string The order by clause
-	 * @return DataAccessObject for chaining
+	 * @return $this so that you can chain bindings and conditionals
      */
 	function setOrderByClause($val)
 	{
@@ -509,7 +522,7 @@ abstract class DataAccessObjectFactory extends DatabaseProcessor implements Tabl
 	 * Add a bunch of fields to the order by clause ascending
 	 * Usage: $f->orderByAsc("last_name","first_name");
 	 * @param array|string $arrayOfFields An array of strings or all the fields separated by commas
-	 * @return DataAccessObject
+	 * @return $this so that you can chain bindings and conditionals
      */
 	function orderByAsc($arrayOfFields)
 	{
@@ -533,7 +546,7 @@ abstract class DataAccessObjectFactory extends DatabaseProcessor implements Tabl
 	 * Usage: $f->limit(10);
 	 * @param integer $number The number of rows to return
 	 * @param integer $offset The row to start at
-	 * @return DataAccessObject
+	 * @return $this so that you can chain bindings and conditionals
      */
 	function limit($number, $offset = 0)
 	{
@@ -552,7 +565,7 @@ abstract class DataAccessObjectFactory extends DatabaseProcessor implements Tabl
 	/**
 	 * Set and replace the entire limit clause
 	 * @param string $limitClause The limit clause
-	 * @return DataAccessObject for chaining
+	 * @return $this so that you can chain bindings and conditionals
      */
 	function setLimitClause($limitClause)
 	{
@@ -575,7 +588,7 @@ abstract class DataAccessObjectFactory extends DatabaseProcessor implements Tabl
 	 * Usage: $f->paging(2,50);
 	 * @param integer $pageNumber The page number the dataset is on
 	 * @param integer $rowsPerPage Number of rows per page
-	 * @return DataAccessObject
+	 * @return  \Parm\Object
      */
 	function paging($pageNumber, $rowsPerPage = 20)
 	{
@@ -630,7 +643,7 @@ abstract class DataAccessObjectFactory extends DatabaseProcessor implements Tabl
 	/**
 	 * Find the first object based on the clause
 	 * @param string $clause
-	 * @return DataAccessObject
+	 * @return $this so that you can chain bindings and conditionals
      */
 	function findFirst($clause = "")
 	{

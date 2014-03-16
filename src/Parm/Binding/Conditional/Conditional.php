@@ -21,7 +21,7 @@ abstract class Conditional extends \Parm\Binding\SQLString
      * Add a binding to the list of bindings that will be joined together to make the SQL string.
 	 * 
 	 * @param string|Binding|Conditional $binding
-	 * @return Conditional Returns itself for chaining
+	 * @return $this Returns itself for chaining
      */
 	public function bind($binding)
 	{
@@ -33,7 +33,7 @@ abstract class Conditional extends \Parm\Binding\SQLString
      * Add a binding to the list of bindings that will be joined together to make the SQL string.
 	 * 
 	 * @param string|Binding|Conditional $binding
-	 * @return Conditional Returns itself for chaining
+	 * @return $this Returns itself for chaining
      */
 	public function addBinding($binding)
 	{
@@ -44,7 +44,7 @@ abstract class Conditional extends \Parm\Binding\SQLString
      * Add a conditional to the list of conditionals that will be joined together to make a SQL string
 	 * 
 	 * @param Conditional $conditional
-	 * @return Conditional Returns itself for chaining
+	 * @return $this Returns itself for chaining
      */
 	public function addConditional(Conditional $conditional)
 	{
@@ -55,7 +55,7 @@ abstract class Conditional extends \Parm\Binding\SQLString
      * Add a conditional to the list of conditionals that will be joined together to make a SQL string
 	 * 
 	 * @param Conditional $conditional
-	 * @return Conditional Returns itself for chaining
+	 * @return $this Returns itself for chaining
      */
 	public function hasChildBindings()
 	{
@@ -67,10 +67,10 @@ abstract class Conditional extends \Parm\Binding\SQLString
 	/**
      * Return the SQL String
 	 * 
-	 * @param DatabaseAccessObjectFactory $factory The factory to use for escaping values
+	 * @param Factory $factory The factory to use for escaping values
 	 * @return string
      */
-	public function getSQL(\Parm\DataAccessObjectFactory $factory)
+	public function getSQL(\Parm\Factory $factory)
 	{
 		if($this->hasChildBindings())
 		{
@@ -89,13 +89,17 @@ abstract class Conditional extends \Parm\Binding\SQLString
 	
 	private function addItem($item)
 	{
-		if(is_string($item))
+		if($item instanceof \Parm\Binding\SQLString)
+		{
+			$this->items[] = $item;
+		}
+		else if(is_string($item))
 		{
 			$this->items[] = new \Parm\Binding\StringBinding($item);
 		}
 		else
 		{
-			$this->items[] = $item;
+			throw new \Parm\ErrorException("addItem requires a \\Parm\\Binding\\SQLString or a string be passed to it");
 		}
 	}
 	

@@ -17,10 +17,10 @@ class CaseSensitiveEqualsBinding extends EqualsBinding
 	/**
      * Return the SQL String
 	 * 
-	 * @param $factory DataAccessObjectFactory
+	 * @param $factory Factory
 	 * @return string
      */
-	function getSQL(\Parm\DataAccessObjectFactory $factory)
+	function getSQL(\Parm\Factory $factory)
 	{
 		return $factory->escapeString($this->field) . " COLLATE " . $factory->databaseNode->serverCaseSensitiveCollation . " LIKE '" . $factory->escapeString(str_replace("_", "\_", str_replace("%", "\%", $this->value))) . "'";
 	}

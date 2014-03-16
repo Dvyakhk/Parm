@@ -38,11 +38,11 @@ It generates models based on your schema and its powerful closure based query pr
 ### Composer (Packagist)
 https://packagist.org/packages/parm/parm
 
-	"parm/parm": "1.*"
+	"parm/parm": "2.*"
 
 ### Example Database Configuration
 
-	\Parm\ParmConfig::addDatabase('database-name',new Parm\DatabaseNode('database-name-on-server','database-host','database-username','database-password'));
+	Parm\Config::addDatabase('database-name',new Parm\DatabaseNode('database-name-on-server','database-host','database-username','database-password'));
 
 
 ### Example Generator Configuration
@@ -59,7 +59,7 @@ When the generator runs it will create two files for each table (an object and a
 ## Extending Models
 You can easily extend the models to encapsulate business logic. The examples below use these extended objects for brevity.
 
-	class User extends Project\Dao\UserDaoObject
+	class User extends Project\Dao\UserObject
 	{
 		static function getFactory(\Parm\DatabaseNode $databaseNode = null)
 		{

@@ -19,16 +19,16 @@ class NotInBinding extends SQLString
 
 	/**
      * Filter rows by an array of values but exclude the values in the array
-	 * @param $field The field or column to filter on
-	 * @param $array The array of values to filter the field or column on
+	 * @param string $field The field or column to filter on
+	 * @param array $array The array of values to filter the field or column on
      */
-	function __construct($field, $array)
+	function __construct($field, array $array)
 	{
 		$this->field = $field;
 		$this->array = $array;
 	}
 
-	function getSQL(\Parm\DataAccessObjectFactory $factory)
+	function getSQL(\Parm\Factory $factory)
 	{
 		if(count($this->array) == 1)
 		{

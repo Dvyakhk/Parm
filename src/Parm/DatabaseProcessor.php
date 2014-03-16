@@ -23,7 +23,7 @@ class DatabaseProcessor
 		}
 		else if(is_string($mixed))
 		{
-			$this->databaseNode = ParmConfig::getDatabaseMaster($mixed);
+			$this->databaseNode = Config::getDatabaseMaster($mixed);
 
 			if($this->databaseNode == null || !($this->databaseNode instanceof DatabaseNode))
 			{
@@ -142,6 +142,7 @@ class DatabaseProcessor
 	
 	/**
 	 * Build a data object from the row data
+	 * Note: this function is overridden in the generated factories
 	 * 
 	 * @param array $row The associative array of data
 	 * @return DataArray
@@ -154,7 +155,7 @@ class DatabaseProcessor
 	/**
 	 * Loop through the rows of a query and process with a closure
 	 * 
-	 * @param callable $closure Closure to process the rows of the database retrieved with, the closure is passed a DataArray or DataAccessObject
+	 * @param callable $closure Closure to process the rows of the database retrieved with, the closure is passed a DataArray or Object if using this method in a factory
 	 * @return DatabaseProcessor This DatabaseProcessor so you can chain it
      */
 	public function process($closure)
@@ -186,8 +187,8 @@ class DatabaseProcessor
 	 * You can use this on millions of rows without memory problems
 	 * Does lock the table to writes on some databases
 	 * 
-	 * @param callable $closure Closure to process the rows of the database retrieved with, the closure is passed a DataArray or DataAccessObject
-	 * @return DatabaseProcessor This DatabaseProcessor so you can chain it
+	 * @param callable $closure Closure to process the rows of the database retrieved with, the closure is passed a DataArray or \Parm\Object
+	 * @return $this
      */
 	public function unbufferedProcess($closure)
 	{

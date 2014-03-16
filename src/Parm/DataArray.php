@@ -5,7 +5,7 @@ namespace Parm;
 /**
  * DataArray is used for creating an object wrapper around an array.
  * The DatabaseProcessor returns DataArray objects when the getArray function is called.
- * The DataAccessObject extends this class.
+ * The \Parm\Object extends this class.
  */
 class DataArray extends \ArrayObject
 {

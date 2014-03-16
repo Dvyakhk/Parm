@@ -2,28 +2,32 @@
 
 namespace Parm;
 
-abstract class DataAccessObject extends DataArray implements TableInterface
+abstract class Object extends DataArray implements TableInterface
 {
 	private $__modifiedColumns = array();
 
 	/**
 	 * Constructor
-     * @param array $row Array of data
+     * @param array $row Array of data for the object
      */
 	function __construct(array $row = null)
 	{
+		// if nothing passed set with the default values from the database
 		if($row == null)
 		{
 			$row = static::getDefaultRow();
 		}
 
+		// add the id field as null to the list of fields if it isn't passed with the array
 		if(!array_key_exists(static::getIdField(),$row))
 		{
 			$row[static::getIdField()] = null;
 		}
 
+		// constructor
 		parent::__construct($row);
 
+		// if it is a new object mark all the fields as modified so they are included in the insert statement
 		if($this->isNewObject())
 		{
 			foreach(array_keys($row) as $field)
@@ -68,6 +72,7 @@ abstract class DataAccessObject extends DataArray implements TableInterface
 		
 		$sql = array();
 
+		// pack up the update or insert statement
 		foreach ($this->__modifiedColumns as $field => $j)
 		{
 			if ($field != $this->getIdField() && in_array($field, static::getFields()))
@@ -83,6 +88,7 @@ abstract class DataAccessObject extends DataArray implements TableInterface
 			}
 		}
 
+		// insert or update
 		if ($this->isNewObject())
 		{
 			if (count($sql) > 0)
@@ -100,7 +106,7 @@ abstract class DataAccessObject extends DataArray implements TableInterface
 		{
 			$f->update('UPDATE ' . $this->getTableName() . " SET " . implode(",", $sql) . " WHERE " . $this->getTableName() . "." . $this->getIdField() . ' = ' . $this->getId());
 		}
-		
+
 		$this->clearModifiedColumns();
 		
 		return $this;
@@ -145,7 +151,7 @@ abstract class DataAccessObject extends DataArray implements TableInterface
 	
 	/**
      * Clone the object as a new object. This will cause the save() to save a new row to the database.
-	 * @return DataAccessObject
+	 * @return self
      */
 	public function duplicateAsNewObject(){
 		

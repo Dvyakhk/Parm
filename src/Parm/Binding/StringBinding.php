@@ -8,7 +8,7 @@ class StringBinding extends SQLString
 	 * The sql to filter on
      * @var string
      */
-	public $sql;
+	protected $sql;
 	
 	/**
      * Filter rows on a string
@@ -27,7 +27,7 @@ class StringBinding extends SQLString
 		}
 	}
 
-	function getSQL(\Parm\DataAccessObjectFactory $factory)
+	function getSQL(\Parm\Factory $factory)
 	{
 		return $this->sql;
 	}

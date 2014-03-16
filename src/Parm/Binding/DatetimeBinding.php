@@ -15,7 +15,7 @@ class DatetimeBinding extends Binding
 		parent::__construct($field, $operator,$mixed);
 	}
 	
-	function getSQL(\Parm\DataAccessObjectFactory $factory)
+	function getSQL(\Parm\Factory $factory)
 	{
 		if($this->value === null)
 		{

@@ -38,10 +38,10 @@ class Binding extends SQLString
 	/**
      * Return the SQL String
 	 * 
-	 * @param \Parm\DataAccessObjectFactory $factory
+	 * @param \Parm\Factory $factory
 	 * @return string
      */
-	function getSQL(\Parm\DataAccessObjectFactory $factory)
+	function getSQL(\Parm\Factory $factory)
 	{
 		if($this->value === null)
 		{
